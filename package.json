@@ -1,4 +1,10 @@
 {
 	"name": "dom_event_delegator",
-	"version": "0.0.1"
+	"description": "A simple cross browser event delegation library with very low dependencies that allows you to easily map \"actions\" in custom HTML5 attributes to methods on an object.",
+	"version": "0.0.1",
+	"author": "Greg Burghardt <greg_burghardt@yahoo.com",
+	"homepage": "https://github.com/gburghardt/dom_event_delegator",
+	"repository": {"type": "git", "url": "https://github.com/gburghardt/dom_event_delegator.git"},
+	"main": "lib/dom/events/delegator.js",
+	"keywords": ["javascript", "document object model", "dom", "event", "delegation"]
 }
