@@ -1,5 +1,22 @@
 describe("dom.events.Delegator", function() {
 
+	function MockEvent(type) {
+		this.type = type;
+	}
+
+	MockEvent.prototype = {
+		dispatchEvent: function(target) {
+			this.target = target;
+			this.currentTarget = target;
+		},
+		stopPropagation: function() {
+
+		},
+		preventDefault: function() {
+			
+		}
+	};
+
 	beforeEach(function() {
 		this.delegate = {};
 		this.node = document.createElement("div");
@@ -50,13 +67,21 @@ describe("dom.events.Delegator", function() {
 
 		it("sets a new mapping of actions to events", function() {
 			var mapping = {
-				click: "foo",
+				click: ["foo", "baz"],
 				mouseover: "bar"
 			};
 
 			this.delegator.setEventActionMapping(mapping);
+			
 			expect(this.delegator.addEventType).wasCalledWith("click");
 			expect(this.delegator.addEventType).wasCalledWith("mouseover");
+
+			expect(this.delegator.eventActionMapping.click).toEqual(["foo", "baz"]);
+			expect(this.delegator.eventActionMapping.mouseover).toEqual(["bar"]);
+
+			expect(this.delegator.actionEventMapping.foo).toEqual("click");
+			expect(this.delegator.actionEventMapping.baz).toEqual("click");
+			expect(this.delegator.actionEventMapping.bar).toEqual("mouseover");
 		});
 
 		it("unregisters event handlers from the old mapping when registering a new mapping", function() {
@@ -67,14 +92,85 @@ describe("dom.events.Delegator", function() {
 			expect(this.delegator.removeEventType).wasNotCalled();
 
 			this.delegator.setEventActionMapping({blur: "test", keypress: "blah"});
+
 			expect(this.delegator.removeEventType).wasCalledWith("click");
 			expect(this.delegator.removeEventType).wasCalledWith("focus");
+
 			expect(this.delegator.addEventType).wasCalledWith("blur");
 			expect(this.delegator.addEventType).wasCalledWith("keypress");
 		});
 	});
 
-	describe("handleEvent", function() {
+	describe("handlePatchedEvent", function() {
+		
+		beforeEach(function() {
+			this.event = new MockEvent();
+			this.event.dispatchEvent(this.node);
+		});
+
+		describe("without an event-to-action mapping", function() {
+
+			describe("and no action prefix", function() {
+
+				xit("calls a method on the delegate from the data-action attribute");
+
+				xit("calls a method on the delegate from the data-action-EVENT_TYPE attribute");
+
+				xit("calls a method on the delegate for every event from the data-action attribute");
+
+				xit("does not call the method specified in data-action when a data-action-EVENT_TYPE attribute exists");
+
+				xit("calls handleAction by default if that method exists on the delegate");
+
+				xit("does not call handleAction if that method does not exist on the delegate");
+
+			});
+
+			describe("and an action prefix", function() {
+
+				describe("when the action prefix matches", function() {
+
+					xit("calls a method on the delegate from the data-action attribute");
+
+					xit("calls a method on the delegate from the data-action-EVENT_TYPE attribute");
+
+				});
+
+				describe("when the action prefix does not match", function() {
+
+					xit("does not call a method on the delegate from the data-action attribute");
+
+					xit("does not call a method on the delegate from the data-action-EVENT_TYPE attribute");
+
+					xit("does not call handleAction even if the method exists on the delegate");
+
+				});
+
+			});
+
+		});
+
+		describe("with an event-to-action mapping", function() {
+			describe("and no action prefix", function() {
+
+			});
+			describe("and an action prefix", function() {
+				describe("when the action prefix matches", function() {
+					xit("calls a method on the delegate if a mapping exists");
+					xit("does not call a method on the delegate if the mapping does not exist and handleAction is not defined");
+					xit("calls handleAction if that method exists and the mapping does not exist");
+				});
+				describe("when the action prefix does not match", function() {
+					xit("does not call a method on the delegate if the mapping exists");
+					xit("does not call handleAction if the method exists");
+				});
+			});
+		});
+
+
+	});
+
+	describe("handleActionError", function() {
 		xit("should be tested");
 	});
 
