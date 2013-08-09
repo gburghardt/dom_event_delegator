@@ -104,7 +104,7 @@ describe("dom.events.Delegator", function() {
 	describe("handlePatchedEvent", function() {
 		
 		beforeEach(function() {
-			this.event = new MockEvent();
+			this.event = new MockEvent("click");
 			this.event.dispatchEvent(this.node);
 		});
 
@@ -112,17 +112,138 @@ describe("dom.events.Delegator", function() {
 
 			describe("and no action prefix", function() {
 
-				xit("calls a method on the delegate from the data-action attribute");
+				it("calls a method on the delegate from the data-action attribute", function() {
+					var test = this;
 
-				xit("calls a method on the delegate from the data-action-EVENT_TYPE attribute");
+					this.node.innerHTML = [
+						'<div>',
+							'<p>',
+								'<button type="button" data-action="test">Save</button>',
+							'</p>',
+						'</div>'
+					].join("");
 
-				xit("calls a method on the delegate for every event from the data-action attribute");
+					var targetElement = this.node.getElementsByTagName("button")[0];
 
-				xit("does not call the method specified in data-action when a data-action-EVENT_TYPE attribute exists");
+					// TODO: Move these expectations into their own test
+					this.delegate.test = function(event, element, params, action) {
+						expect(this).toStrictlyEqual(test.delegate);
+						expect(event).toStrictlyEqual(test.event);
+						expect(element).toStrictlyEqual(targetElement);
+						expect(params).toEqual({});
+						expect(action).toEqual("test");
+					};
 
-				xit("calls handleAction by default if that method exists on the delegate");
+					spyOn(this.delegate, "test").andCallThrough();
 
-				xit("does not call handleAction if that method does not exist on the delegate");
+					this.event.dispatchEvent(targetElement);
+					
+					this.delegator.handlePatchedEvent(this.event, targetElement);
+					expect(this.delegate.test).wasCalledWith(this.event, targetElement, {}, "test");
+				});
+
+				it("calls a method on the delegate from the data-action-EVENT_TYPE attribute", function() {
+					var test = this;
+
+					this.node.innerHTML = [
+						'<div>',
+							'<p>',
+								'<button type="button" data-action-click="test">Save</button>',
+							'</p>',
+						'</div>'
+					].join("");
+
+					var targetElement = this.node.getElementsByTagName("button")[0];
+
+					this.delegate.test = function() {};
+					spyOn(this.delegate, "test");
+
+					this.delegator.handlePatchedEvent(this.event, targetElement);
+					expect(this.delegate.test).wasCalledWith(this.event, targetElement, {}, "test");
+				});
+
+				it("calls a method on the delegate for every event from the data-action attribute", function() {
+					var test = this;
+
+					this.node.innerHTML = [
+						'<div>',
+							'<p>',
+								'<button type="button" data-action="test">Save</button>',
+							'</p>',
+						'</div>'
+					].join("");
+
+					var targetElement = this.node.getElementsByTagName("button")[0];
+
+					var callCount = 0;
+
+					this.delegate.test = function() {
+						callCount++;
+					};
+
+					spyOn(this.delegate, "test").andCallThrough();
+
+					this.event.dispatchEvent(targetElement);
+					
+					this.delegator.handlePatchedEvent(this.event, targetElement);
+
+					this.event.type = "mouseup";
+					this.delegator.handlePatchedEvent(this.event, targetElement);
+
+					expect(callCount).toEqual(2);
+				});
+
+				it("does not call the method specified in data-action when a data-action-EVENT_TYPE attribute exists", function() {
+					this.node.innerHTML = [
+						'<div>',
+							'<p>',
+								'<button type="button" data-action="doNotCallMe" data-action-click="callMe">Save</button>',
+							'</p>',
+						'</div>'
+					].join("");
+
+					this.delegate.doNotCallMe = function() {};
+					this.delegate.callMe = function() {};
+
+					spyOn(this.delegate, "doNotCallMe");
+					spyOn(this.delegate, "callMe");
+
+					var targetElement = this.node.getElementsByTagName("button")[0];
+					this.delegator.handlePatchedEvent(this.event, targetElement);
+
+					expect(this.delegate.doNotCallMe).wasNotCalled();
+					expect(this.delegate.callMe).wasCalledWith(this.event, targetElement, {}, "callMe");
+				});
+
+				it("calls handleAction by default if that method exists on the delegate", function() {
+					this.node.innerHTML = [
+						'<div>',
+							'<p>',
+								'<button type="button" data-action="test">Save</button>',
+							'</p>',
+						'</div>'
+					].join("");
+
+					this.delegate.handleAction = function() {};
+					spyOn(this.delegate, "handleAction");
+					var targetElement = this.node.getElementsByTagName("button")[0];
+					this.delegator.handlePatchedEvent(this.event, targetElement);
+
+					expect(this.delegate.handleAction).wasCalledWith(this.event, targetElement, {}, "test");
+				});
+
+				it("does not call handleAction if that method does not exist on the delegate", function() {
+					this.node.innerHTML = [
+						'<div>',
+							'<p>',
+								'<button type="button" data-action="test">Save</button>',
+							'</p>',
+						'</div>'
+					].join("");
+
+					var targetElement = this.node.getElementsByTagName("button")[0];
+					this.delegator.handlePatchedEvent(this.event, targetElement);
+				});
 
 			});
 
