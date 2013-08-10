@@ -108,6 +108,35 @@ describe("dom.events.Delegator", function() {
 			this.event.dispatchEvent(this.node);
 		});
 
+		it("passes the event, acton element, params and action name to the delegate", function() {
+			var test = this;
+
+			this.node.innerHTML = [
+				'<div>',
+					'<p>',
+						'<button type="button" data-action="test">Save</button>',
+					'</p>',
+				'</div>'
+			].join("");
+
+			var targetElement = this.node.getElementsByTagName("button")[0];
+
+			this.delegate.test = function(event, element, params, action) {
+				expect(this).toStrictlyEqual(test.delegate);
+				expect(event).toStrictlyEqual(test.event);
+				expect(element).toStrictlyEqual(targetElement);
+				expect(params).toEqual({});
+				expect(action).toEqual("test");
+			};
+
+			spyOn(this.delegate, "test").andCallThrough();
+
+			this.event.dispatchEvent(targetElement);
+			
+			this.delegator.handlePatchedEvent(this.event, targetElement);
+			expect(this.delegate.test).wasCalledWith(this.event, targetElement, {}, "test");
+		});
+
 		describe("without an event-to-action mapping", function() {
 
 			describe("and no action prefix", function() {
@@ -125,20 +154,11 @@ describe("dom.events.Delegator", function() {
 
 					var targetElement = this.node.getElementsByTagName("button")[0];
 
-					// TODO: Move these expectations into their own test
-					this.delegate.test = function(event, element, params, action) {
-						expect(this).toStrictlyEqual(test.delegate);
-						expect(event).toStrictlyEqual(test.event);
-						expect(element).toStrictlyEqual(targetElement);
-						expect(params).toEqual({});
-						expect(action).toEqual("test");
-					};
-
-					spyOn(this.delegate, "test").andCallThrough();
-
+					this.delegate.test = function() {};
+					spyOn(this.delegate, "test");
 					this.event.dispatchEvent(targetElement);
-					
 					this.delegator.handlePatchedEvent(this.event, targetElement);
+
 					expect(this.delegate.test).wasCalledWith(this.event, targetElement, {}, "test");
 				});
 
@@ -249,21 +269,118 @@ describe("dom.events.Delegator", function() {
 
 			describe("and an action prefix", function() {
 
+				beforeEach(function() {
+					this.delegator.setActionPrefix("blogPost");
+				});
+
 				describe("when the action prefix matches", function() {
 
-					xit("calls a method on the delegate from the data-action attribute");
+					it("calls a method on the delegate from the data-action attribute", function() {
+						this.node.innerHTML = [
+							'<li>',
+								'<a href="#" data-action="blogPost.view">Full Post</a>',
+							'</li>'
+						].join("");
 
-					xit("calls a method on the delegate from the data-action-EVENT_TYPE attribute");
+						var targetElement = this.node.getElementsByTagName("a")[0];
+
+						this.delegate.view = function() {};
+						spyOn(this.delegate, "view");
+						this.event.dispatchEvent(targetElement);
+						this.delegator.handlePatchedEvent(this.event, targetElement);
+
+						expect(this.delegate.view).wasCalledWith(this.event, targetElement, {}, "blogPost.view");
+					});
+
+					it("calls a method on the delegate from the data-action-EVENT_TYPE attribute", function() {
+						this.node.innerHTML = [
+							'<li>',
+								'<a href="#" data-action-click="blogPost.view">Full Post</a>',
+							'</li>'
+						].join("");
+
+						var targetElement = this.node.getElementsByTagName("a")[0];
+
+						this.delegate.view = function() {};
+						spyOn(this.delegate, "view");
+						this.event.dispatchEvent(targetElement);
+						this.delegator.handlePatchedEvent(this.event, targetElement);
+
+						expect(this.delegate.view).wasCalledWith(this.event, targetElement, {}, "blogPost.view");
+					});
+
+					it("calls handleAction on the delegate if the method does not exist", function() {
+						this.node.innerHTML = [
+							'<li>',
+								'<a href="#" data-action-click="blogPost.view">Full Post</a>',
+							'</li>'
+						].join("");
+
+						var targetElement = this.node.getElementsByTagName("a")[0];
+
+						this.delegate.handleAction = function() {};
+						spyOn(this.delegate, "handleAction");
+						this.event.dispatchEvent(targetElement);
+						this.delegator.handlePatchedEvent(this.event, targetElement);
+
+						expect(this.delegate.handleAction).wasCalledWith(this.event, targetElement, {}, "blogPost.view");
+					});
 
 				});
 
 				describe("when the action prefix does not match", function() {
 
-					xit("does not call a method on the delegate from the data-action attribute");
+					it("does not call a method on the delegate from the data-action attribute", function() {
+						this.node.innerHTML = [
+							'<li>',
+								'<a href="#" data-action="wrongPrefix.view">Full Post</a>',
+							'</li>'
+						].join("");
 
-					xit("does not call a method on the delegate from the data-action-EVENT_TYPE attribute");
+						var targetElement = this.node.getElementsByTagName("a")[0];
 
-					xit("does not call handleAction even if the method exists on the delegate");
+						this.delegate.view = function() {};
+						spyOn(this.delegate, "view");
+						this.event.dispatchEvent(targetElement);
+						this.delegator.handlePatchedEvent(this.event, targetElement);
+
+						expect(this.delegate.view).wasNotCalled();
+					});
+
+					it("does not call a method on the delegate from the data-action-EVENT_TYPE attribute", function(){
+						this.node.innerHTML = [
+							'<li>',
+								'<a href="#" data-action-click="wrongPrefix.view">Full Post</a>',
+							'</li>'
+						].join("");
+
+						var targetElement = this.node.getElementsByTagName("a")[0];
+
+						this.delegate.view = function() {};
+						spyOn(this.delegate, "view");
+						this.event.dispatchEvent(targetElement);
+						this.delegator.handlePatchedEvent(this.event, targetElement);
+
+						expect(this.delegate.view).wasNotCalled();
+					});
+
+					it("does not call handleAction even if the method exists on the delegate", function() {
+						this.node.innerHTML = [
+							'<li>',
+								'<a href="#" data-action-click="wrongPrefix.view">Full Post</a>',
+							'</li>'
+						].join("");
+
+						var targetElement = this.node.getElementsByTagName("a")[0];
+
+						this.delegate.handleAction = function() {};
+						spyOn(this.delegate, "handleAction");
+						this.event.dispatchEvent(targetElement);
+						this.delegator.handlePatchedEvent(this.event, targetElement);
+
+						expect(this.delegate.handleAction).wasNotCalled();
+
+					});
 
 				});
 
@@ -288,6 +405,9 @@ describe("dom.events.Delegator", function() {
 			});
 		});
 
+		xit("calls multiple methods on the delegate if the event propagation is not stopped");
+
+		xit("does not continue calling methods on the delegate if the propagation is stopped");
 
 	});
 
