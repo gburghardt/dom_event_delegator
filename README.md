@@ -77,4 +77,4 @@ When the `submit` event is triggered, what happens? Well, look at the `data-acti
 
 1. The browser event object
 2. The element with the `data-action` attribute on it.
-3. Optional params taken from the data-actionparams-<event type> attribute on the element with the `data-action` attribute. If omitted, this is an empty object.
+3. Optional params taken from the `data-actionparams-EVENT_TYPE` attribute on the element with the `data-action` attribute. If omitted, this is an empty object.
