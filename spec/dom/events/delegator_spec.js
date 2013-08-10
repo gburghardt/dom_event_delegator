@@ -108,7 +108,7 @@ describe("dom.events.Delegator", function() {
 			this.event.dispatchEvent(this.node);
 		});
 
-		it("passes the event, acton element, params and action name to the delegate", function() {
+		it("passes the event, action element, params and action name to the delegate", function() {
 			var test = this;
 
 			this.node.innerHTML = [
