@@ -27,19 +27,19 @@ describe("dom.events.Delegator", function() {
 
 		it("returns the action when there is no action prefix", function() {
 			expect(this.delegator.actionPrefix).toBeNull();
-			expect(this.delegator.getMethodFromAction("testing")).toEqual("testing");
-			expect(this.delegator.getMethodFromAction("foo.bar.baz")).toEqual("foo.bar.baz");
+			expect(this.delegator.getMethodFromAction("testing", "testing")).toEqual("testing");
+			expect(this.delegator.getMethodFromAction("foo.bar.baz", "baz")).toEqual("baz");
 		});
 
 		it("returns null when the action prefix does not match", function() {
 			this.delegator.setActionPrefix("foo.bar");
-			expect(this.delegator.getMethodFromAction("baz.testing")).toBeNull();
-			expect(this.delegator.getMethodFromAction("foo.bar.baz.testing")).toBeNull();
+			expect(this.delegator.getMethodFromAction("baz.testing", "testing")).toBeNull();
+			expect(this.delegator.getMethodFromAction("foo.bar.baz.testing", "testing")).toBeNull();
 		});
 
 		it("returns the method name when the action prefix matches", function() {
 			this.delegator.setActionPrefix("foo.bar");
-			expect(this.delegator.getMethodFromAction("foo.bar.testing")).toEqual("testing");
+			expect(this.delegator.getMethodFromAction("foo.bar.testing", "testing")).toEqual("testing");
 		});
 
 	});
@@ -289,7 +289,7 @@ describe("dom.events.Delegator", function() {
 						this.event.dispatchEvent(targetElement);
 						this.delegator.handlePatchedEvent(this.event, targetElement);
 
-						expect(this.delegate.view).wasCalledWith(this.event, targetElement, {}, "blogPost.view");
+						expect(this.delegate.view).wasCalledWith(this.event, targetElement, {}, "view");
 					});
 
 					it("calls a method on the delegate from the data-action-EVENT_TYPE attribute", function() {
@@ -306,7 +306,7 @@ describe("dom.events.Delegator", function() {
 						this.event.dispatchEvent(targetElement);
 						this.delegator.handlePatchedEvent(this.event, targetElement);
 
-						expect(this.delegate.view).wasCalledWith(this.event, targetElement, {}, "blogPost.view");
+						expect(this.delegate.view).wasCalledWith(this.event, targetElement, {}, "view");
 					});
 
 					it("calls handleAction on the delegate if the method does not exist", function() {
@@ -323,7 +323,7 @@ describe("dom.events.Delegator", function() {
 						this.event.dispatchEvent(targetElement);
 						this.delegator.handlePatchedEvent(this.event, targetElement);
 
-						expect(this.delegate.handleAction).wasCalledWith(this.event, targetElement, {}, "blogPost.view");
+						expect(this.delegate.handleAction).wasCalledWith(this.event, targetElement, {}, "view");
 					});
 
 				});
@@ -460,16 +460,71 @@ describe("dom.events.Delegator", function() {
 			});
 
 			describe("and an action prefix", function() {
+
+				beforeEach(function() {
+					this.delegator.setActionPrefix("blogPost");
+				});
+
 				describe("when the action prefix matches", function() {
-					xit("calls a method on the delegate if a mapping exists");
-					xit("does not call a method on the delegate if the mapping does not exist and handleAction is not defined");
-					xit("calls handleAction if that method exists and the mapping does not exist");
+
+					it("calls a method on the delegate if a mapping exists", function() {
+						this.node.innerHTML = [
+							'<li>',
+								'<a href="#" data-action="blogPost.view">Full Post</a>',
+							'</li>'
+						].join("");
+
+						var targetElement = this.node.getElementsByTagName("a")[0];
+						this.event.dispatchEvent(targetElement);
+						this.delegator.handlePatchedEvent(this.event, targetElement);
+
+						expect(this.delegate.view).wasCalledWith(this.event, targetElement, {}, "view");
+						expect(this.delegate.handleAction).wasNotCalled();
+					});
+
+					it("does not call a method on the delegate if the mapping does not exist", function() {
+						this.event.type = "mousedown";
+						this.node.innerHTML = [
+							'<li>',
+								'<a href="#" data-action="blogPost.view">Full Post</a>',
+							'</li>'
+						].join("");
+
+						var targetElement = this.node.getElementsByTagName("a")[0];
+						this.event.dispatchEvent(targetElement);
+						this.delegator.handlePatchedEvent(this.event, targetElement);
+
+						expect(this.delegate.view).wasNotCalled();
+						expect(this.delegate.handleAction).wasNotCalled();
+					});
+
+					it("calls handleAction if that method exists and the mapping does not exist", function() {
+						this.node.innerHTML = [
+							'<p>',
+								'<button type="button" data-action="blogPost.cancel">Cancel</button>',
+							'</p>'
+						].join("");
+
+						var targetElement = this.node.getElementsByTagName("button")[0];
+						this.event.dispatchEvent(targetElement);
+						this.delegator.handlePatchedEvent(this.event, targetElement);
+
+						expect(this.delegate.view).wasNotCalled();
+						expect(this.delegate.handleAction).wasCalledWith(this.event, targetElement, {}, "cancel");
+					});
+
 				});
+
 				describe("when the action prefix does not match", function() {
+
 					xit("does not call a method on the delegate if the mapping exists");
+
 					xit("does not call handleAction if the method exists");
+
 				});
+
 			});
+
 		});
 
 		xit("calls multiple methods on the delegate if the event propagation is not stopped");
