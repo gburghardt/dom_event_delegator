@@ -14,13 +14,13 @@ jQuery helped us out a little. We could attach event handlers to elements using 
 
 The DOM Event Delegator was built with X things in mind:
 
-1) JavaScript remains unobtrusive
-2) Separate style from behavior
-3) Make it easier to trouble shoot bugs by mapping actions on elements to objects and methods in JavaScript
-4) Keep it object oriented
-5) Don't worry about what `this` points to in an event handler
-6) Attach one event handler to a container element and use event bubbling
-7) No more worries about memory leaks because an element was removed from the document before event handlers were detached.
+1. JavaScript remains unobtrusive
+2. Separate style from behavior
+3. Make it easier to trouble shoot bugs by mapping actions on elements to objects and methods in JavaScript
+4. Keep it object oriented
+5. Don't worry about what `this` points to in an event handler
+6. Attach one event handler to a container element and use event bubbling
+7. No more worries about memory leaks because an element was removed from the document before event handlers were detached.
 
 HTML5 data attributes are utilized to describe the behavior in HTML, which then gets mapped to methods in JavaScript.
 
@@ -75,6 +75,6 @@ When the `submit` event is triggered, what happens? Well, look at the `data-acti
 
 ## Action Handler Arguments:
 
-1) The browser event object
-2) The element with the `data-action` attribute on it.
-3) Optional params taken from the data-actionparams-<event type> attribute on the element with the `data-action` attribute. If omitted, this is an empty object.
+1. The browser event object
+2. The element with the `data-action` attribute on it.
+3. Optional params taken from the data-actionparams-<event type> attribute on the element with the `data-action` attribute. If omitted, this is an empty object.
