@@ -37,27 +37,6 @@ First, some JavaScript:
     }
     BlogPostController.prototype = {
 
-      view: function(event, element, params) {
-        var post = BlogPost.find(params.id);
-
-        // do something with the "post" variable
-      },
-
-      destroy: function(event, element, params) {
-        var post = BlogPost.find(params.id);
-        post.destroy();
-      },
-
-      create: function(event, element, params) {
-        var post = new BlogPost();
-        post.save();
-      },
-
-      edit: function(event, element, params) {
-        var post = BlogPost.find(params.id);
-        // render the edit form
-      },
-
       update: function(event, element, params) {
         var form = element.form || element;
         var post = BlogPost.find(params.id);
@@ -84,8 +63,7 @@ And finally the JavaScript to glue things together:
     
     // Add your action to event mapping
     blogPostController.delegator.setEventActionMapping({
-      submit: ["create", "update"],
-      click: ["edit", "view", "destroy"]
+      submit: "update"
     });
 
     // Init the delegator and substribe to events
