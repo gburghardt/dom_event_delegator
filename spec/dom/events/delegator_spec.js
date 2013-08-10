@@ -389,9 +389,76 @@ describe("dom.events.Delegator", function() {
 		});
 
 		describe("with an event-to-action mapping", function() {
+			beforeEach(function() {
+				this.mapping = {
+					click: ["view", "save", "cancel"],
+					keypress: "autoComplete"
+				};
+
+				// this.delegate.cancel omitted on purpose
+				this.delegate.view = function() {};
+				this.delegate.save = function() {};
+				this.delegate.autoComplete = function() {};
+				this.delegate.handleAction = function() {};
+
+				spyOn(this.delegate, "view");
+				spyOn(this.delegate, "save");
+				spyOn(this.delegate, "autoComplete");
+				spyOn(this.delegate, "handleAction");
+
+				this.delegator.setEventActionMapping(this.mapping);
+			});
+
 			describe("and no action prefix", function() {
 
+				it("calls a method on the delegate when the event type matches the mapping", function() {
+					this.node.innerHTML = [
+						'<li>',
+							'<a href="#" data-action="view">Full Post</a>',
+						'</li>'
+					].join("");
+
+					var targetElement = this.node.getElementsByTagName("a")[0];
+					this.event.dispatchEvent(targetElement);
+					this.delegator.handlePatchedEvent(this.event, targetElement);
+
+					expect(this.delegate.view).wasCalledWith(this.event, targetElement, {}, "view");
+					expect(this.delegate.handleAction).wasNotCalled();
+				});
+
+				it("does not call a method on the delegate when the event type doesn't match the mapping", function() {
+					this.event.type = "mousedown";
+					this.node.innerHTML = [
+						'<li>',
+							'<a href="#" data-action="view">Full Post</a>',
+						'</li>'
+					].join("");
+
+					var targetElement = this.node.getElementsByTagName("a")[0];
+					this.event.dispatchEvent(targetElement);
+					this.delegator.handlePatchedEvent(this.event, targetElement);
+
+					expect(this.delegate.view).wasNotCalled();
+					expect(this.delegate.handleAction).wasNotCalled();
+				});
+
+				it("calls handleAction when the event type has been subscribed to, but no method matches the action", function() {
+					this.node.innerHTML = [
+						'<p>',
+							'<button type="button" data-action="cancel">Cancel</button>',
+						'</p>'
+					].join("");
+
+					var targetElement = this.node.getElementsByTagName("button")[0];
+					this.event.dispatchEvent(targetElement);
+					this.delegator.handlePatchedEvent(this.event, targetElement);
+
+					expect(this.delegate.view).wasNotCalled();
+					expect(this.delegate.handleAction).wasCalledWith(this.event, targetElement, {}, "cancel");
+				});
+
 			});
+
 			describe("and an action prefix", function() {
 				describe("when the action prefix matches", function() {
 					xit("calls a method on the delegate if a mapping exists");
