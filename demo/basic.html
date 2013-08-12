@@ -1,0 +1,139 @@
+<!DOCTYPE HTML>
+
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Demo: Basic Event Delegation</title>
+
+	<style type="text/css">
+		ol {
+			border: 1px solid #000;
+			border-radius: .67em;
+			list-style-position: inside;
+			margin: 0;
+			padding: .67em 0;
+		}
+		ol>li {
+			cursor: default;
+			margin: 0;
+			padding: .33em 0 .33em .5em;
+		}
+		ol>li.selected {
+			background-color: #ffc;
+		}
+	</style>
+</head>
+<body>
+
+	<!-- The HTML -->
+	<div id="basic">
+		<form method="get" action="#" data-action="add">
+			<p>
+				Task: <input type="text" name="title"> <button type="submit">Add</button>
+			</p>
+		</form>
+		<p>
+			<button data-action="removeSelected">Remove Selected</button>
+		</p>
+		<ol>
+			<li data-action="toggleSelection">Take out the trash <button data-action="remove">X</button></li>
+			<li data-action="toggleSelection">Shop for groceries <button data-action="remove">X</button></li>
+		</ol>
+	</div>
+
+	<!-- DOM Event Delegator code -->
+	<script type="text/javascript" src="../lib/dom/events/delegator.js"></script>
+
+	<!-- The "Controller" class -->
+	<script type="text/javascript">
+
+		function TaskListController() {
+
+		}
+
+		TaskListController.prototype = {
+
+			actions: {
+				click: [
+					"remove",
+					"removeSelected",
+					"toggleSelection"
+				],
+
+				submit: "add"
+			},
+
+			element: null,
+
+			delegator: null,
+
+			init: function(elementOrId) {
+				this.element = typeof elementOrId === "string" ? document.getElementById(elementOrId) : elementOrId;
+
+				this.delegator = new dom.events.Delegator(this, this.element);
+				this.delegator.init();
+				this.delegator.setEventActionMapping(this.actions);
+			},
+
+			// <form data-action="add">
+			add: function(event, element, params) {
+				event.stop();
+				
+				var form = element.form || element;
+				var task = form.elements.title.value;
+
+				if (/^\s*$/.test(task)) {
+					alert("Please enter a task");
+				}
+				else {
+					var item = document.createElement("li");
+					item.setAttribute("data-action", "toggleSelection");
+					item.innerHTML = task + ' <button data-action="remove">X</button>';
+
+					this.element.getElementsByTagName("ol")[0].appendChild(item);
+				}
+
+				form.elements.title.value = "";
+				form.elements.title.focus();
+			},
+
+			// <button data-action="remove">
+			remove: function(event, element, params) {
+				event.preventDefault();
+
+				if (confirm("Are you sure you want to remove this task?")) {
+					var item = element.parentNode;
+					item.parentNode.removeChild(item);
+				}
+			},
+
+			// <button data-actio="removeSelected">
+			removeSelected: function(event, element, params) {
+				var items = this.element.querySelectorAll("li.selected");
+
+				if (items && items.length && confirm("Are you sure you want to remove selected items?")) {
+					for (var i = 0, length = items.length; i < length; i++) {
+						items[i].parentNode.removeChild(items[i]);
+					}
+				}
+			},
+
+			// <li data-action="toggleSelected">
+			toggleSelection: function(event, element, params) {
+				element.className = (element.className == "selected") ? "" : "selected";
+			}
+
+		};
+	</script>
+
+	<!-- Make it happen -->
+	<script type="text/javascript">
+
+		var taskListController = new TaskListController();
+
+		taskListController.init("basic");
+
+	</script>
+</body>
+</html>
