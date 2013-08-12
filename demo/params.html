@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Demo: Using data-action Params</title>
+
+	<style type="text/css">
+		ul {
+			list-style-type: none;
+			margin: 0;
+			padding: 0;
+		}
+		ul>li {
+			padding: .3em;
+		}
+	</style>
+</head>
+<body>
+
+	<!-- The HTML -->
+	<div id="params">
+
+		<fieldset>
+			<legend>Simple Params</legend>
+			<ul>
+				<li><button data-action="changeColor" data-actionparams='{"color":"red"}'>Toggle Red</button></li>
+				<li><button data-action="changeColor" data-actionparams='{"color":"green"}'>Toggle Green</button></li>
+				<li><button data-action="changeColor" data-actionparams='{"color":"#ff0"}'>Toggle Yellow</button></li>
+			</ul>
+		</fieldset>
+
+		<fieldset>
+			<legend>Complex Params</legend>
+			<p>
+				<a href="#"
+				   data-action="pageBackground"
+				   data-actionparams='{
+				       "color": {
+				           "red": 255,
+				           "green": 200,
+				           "blue": 255
+				       }
+				   }'
+				>Toggle Page Background</a>
+			</p>
+		</fieldset>
+
+	</div>
+
+	<!-- DOM Event Delegator code -->
+	<script type="text/javascript" src="../lib/dom/events/delegator.js"></script>
+
+	<!-- The "Controller" class -->
+	<script type="text/javascript">
+
+		function ColorController() {
+
+		}
+
+		ColorController.prototype = {
+
+			actions: {
+				click: [
+					"changeColor",
+					"pageBackground"
+				]
+			},
+
+			element: null,
+
+			delegator: null,
+
+			init: function(elementOrId) {
+				this.element = typeof elementOrId === "string" ? document.getElementById(elementOrId) : elementOrId;
+
+				this.delegator = new dom.events.Delegator(this, this.element);
+				this.delegator.init();
+				this.delegator.setEventActionMapping(this.actions);
+			},
+
+			changeColor: function(event, element, params) {
+				var style = element.parentNode.style;
+
+				style.backgroundColor = style.backgroundColor ? "" : params.color;
+			},
+
+			pageBackground: function(event, element, params) {
+				event.preventDefault();
+				var style = document.body.style;
+
+				style.backgroundColor = style.backgroundColor ? "" : "rgb(" + [params.color.red, params.color.green, params.color.blue].join() + ")";
+			}
+
+		};
+	</script>
+
+	<!-- Make it happen -->
+	<script type="text/javascript">
+
+		var colorController = new ColorController();
+
+		colorController.init("params");
+
+	</script>
+</body>
+</html>
