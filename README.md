@@ -77,6 +77,7 @@ controller:
       }
 
     };
+    ```
 
 Now the Markup:
 
@@ -87,6 +88,7 @@ Now the Markup:
         <button type="submit">Save</button>
       </form>
     </div>
+    ```
 
 And finally the JavaScript to glue things together:
 
@@ -115,6 +117,7 @@ And finally the JavaScript to glue things together:
       delegator.init();
       
     </script>
+    ```
 
 In this example, we attach the `submit` event handler to the container element,
 `DIV#update_blog_post`. The `submit` event bubbles up from the `form` tag and is
