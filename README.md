@@ -63,7 +63,6 @@ Let's glue this together.
 First, some JavaScript, which is a Plain Old JavaScript Object acting as our
 controller:
 
-    ```js
     function BlogPostController() {
 
     }
@@ -77,22 +76,18 @@ controller:
       }
 
     };
-    ```
 
 Now the Markup:
 
-    ```html
     <div class="module"  id="update_blog_post">
       <form action="#" data-action="update" data-actionparams-submit='{"id":23}'>
         Title: <input type="text" name="title">
         <button type="submit">Save</button>
       </form>
     </div>
-    ```
 
 And finally the JavaScript to glue things together:
 
-    ```html
       </form>
     </div><!-- end #update_blog_post -->
 
@@ -117,7 +112,6 @@ And finally the JavaScript to glue things together:
       delegator.init();
       
     </script>
-    ```
 
 In this example, we attach the `submit` event handler to the container element,
 `DIV#update_blog_post`. The `submit` event bubbles up from the `form` tag and is
