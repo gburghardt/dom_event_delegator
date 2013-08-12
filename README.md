@@ -110,6 +110,7 @@ And finally the JavaScript to glue things together:
 
       // 5) Init the delegator and substribe to events
       delegator.init();
+      
     </script>
 
 In this example, we attach the `submit` event handler to the container element,
