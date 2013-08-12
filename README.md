@@ -63,6 +63,7 @@ Let's glue this together.
 First, some JavaScript, which is a Plain Old JavaScript Object acting as our
 controller:
 
+    ```js
     function BlogPostController() {
 
     }
@@ -79,6 +80,7 @@ controller:
 
 Now the Markup:
 
+    ```html
     <div class="module"  id="update_blog_post">
       <form action="#" data-action="update" data-actionparams-submit='{"id":23}'>
         Title: <input type="text" name="title">
@@ -88,6 +90,7 @@ Now the Markup:
 
 And finally the JavaScript to glue things together:
 
+    ```html
       </form>
     </div><!-- end #update_blog_post -->
 
