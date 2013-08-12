@@ -88,23 +88,29 @@ Now the Markup:
 
 And finally the JavaScript to glue things together:
 
-    // 1) Instantiate your controller
-    var blogPostController = new BlogPostController();
+      </form>
+    </div><!-- end #update_blog_post -->
 
-    // 2) Get a reference to the containing element
-    var container = document.getElementById("update_blog_post");
+    <script type="text/javascript">
 
-    // 3) Instantiate the delegator, passing the blogPostController in as the
-    // "delegate" object, and the "container" to which all delegated
-    // event handlers get attached
-    var delegator = new dom.events.Delegator(blogPostController, container);
-    
-    // 4) Add your action to event mapping, which maps the "submit" event to the
-    //    "update" method.
-    delegator.setEventActionMapping({ submit: "update" });
+      // 1) Instantiate your controller
+      var blogPostController = new BlogPostController();
 
-    // 5) Init the delegator and substribe to events
-    delegator.init();
+      // 2) Get a reference to the containing element
+      var container = document.getElementById("update_blog_post");
+
+      // 3) Instantiate the delegator, passing the blogPostController in as the
+      // "delegate" object, and the "container" to which all delegated
+      // event handlers get attached
+      var delegator = new dom.events.Delegator(blogPostController, container);
+      
+      // 4) Add your action to event mapping, which maps the "submit" event to the
+      //    "update" method.
+      delegator.setEventActionMapping({ submit: "update" });
+
+      // 5) Init the delegator and substribe to events
+      delegator.init();
+    </script>
 
 In this example, we attach the `submit` event handler to the container element,
 `DIV#update_blog_post`. The `submit` event bubbles up from the `form` tag and is
