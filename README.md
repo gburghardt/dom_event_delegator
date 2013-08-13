@@ -123,7 +123,7 @@ When the `submit` event is triggered, what happens? Well, look at the
 BlogPostController that gets executed. If something goes wrong, start looking
 there.
 
-## Action Handler Arguments:
+### Action Handler Arguments:
 
 These arguments are passed to the `update` method on BlogPostController:
 
@@ -132,3 +132,76 @@ These arguments are passed to the `update` method on BlogPostController:
 3. `params` -- Optional params taken from the `data-actionparams-submit` or
    `data-actionparams` attribute on the element with the `data-action`
    attribute. If omitted, this is an empty object.
+
+## Integration With Existing JavaScript Frameworks
+
+The DOM Event Delegator can be easily integrated with existing frameworks via an
+adaptor. Adaptors exist for the following libraries:
+
+* Dojo
+* jQuery
+* Mootools
+* Prototype
+* YUI
+* Zepto
+
+If you are already using [Inherit.js](https://github.com/gburghardt/inherit.js),
+then you need only include one of the adaptors located in
+`lib/dom/events/delegator/*_adaptor.js`. If you do not use Inherit.js, then you
+need to include the adaptor, plus this snippet of code:
+
+    dom.events.Delegator.prototype.addEventListener =
+        dom.events.Delegator.AbcAdaptor.prototype.addEventListener;
+
+    dom.events.Delegator.prototype.removeEventListener =
+        dom.events.Delegator.AbcAdaptor.prototype.removeEventListener;
+
+    dom.events.Delegator.prototype.triggerEvent =
+        dom.events.Delegator.AbcAdaptor.prototype.triggerEvent;
+
+(Note: replace "AbcAdaptor" with the name of the adaptor you want to use)
+
+### Creating Your Own Adaptor
+
+If you are using a library not on the list above, you can create your own
+adaptor to plug in to the event handling layer.
+
+These are currently the only integration points you can plug in to:
+
+* addEventListener
+* removeEventlistener
+* triggerEvent
+
+An example adaptor:
+
+    dom.events.Delegator.prototype.addEventListener = function(eventType, element, callback) {
+      // ... your code goes here
+    };
+
+    dom.events.Delegator.prototype.removeEventListener = function(eventType, element, callback) {
+      // ... your code goes here
+    };
+    
+    dom.events.Delegator.prototype.removeEventListener = function(eventType, element, callback) {
+      // ... your code goes here
+    };
+
+If you are using Inherit.js, use this template:
+
+    dom.events.Delegator.MyAdaptor = {
+      prototype: {
+        addEventListener: function(eventType, element, callback) {
+          // ... your code goes here
+        },
+
+        removeEventListener: function(eventType, element, callback) {
+          // ... your code goes here
+        },
+
+        triggerEvent: function(eventType) {
+          // ... your code goes here
+        }
+      }
+    };
+
+    dom.events.Delegator.include(dom.events.Delegator.MyAdaptor);
