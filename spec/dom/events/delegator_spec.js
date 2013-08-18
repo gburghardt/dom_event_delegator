@@ -122,9 +122,9 @@ describe("dom.events.Delegator", function() {
 			var targetElement = this.node.getElementsByTagName("button")[0];
 
 			this.delegate.test = function(event, element, params, action) {
-				expect(this).toStrictlyEqual(test.delegate);
-				expect(event).toStrictlyEqual(test.event);
-				expect(element).toStrictlyEqual(targetElement);
+				expect(this).toBe(test.delegate);
+				expect(event).toBe(test.event);
+				expect(element).toBe(targetElement);
 				expect(params).toEqual({});
 				expect(action).toEqual("test");
 			};
